@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сюрприз для любимой</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+
+            /* Фон с фото */
+            background: url('photo.jpg') no-repeat center calc(50% + 50px);
+            background-size: 50%; /* Уменьшаем масштаб изображения */
+        }
+
+        /* Легкое размытие и затемнение */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3); /* Лёгкое затемнение */
+            backdrop-filter: blur(5px); /* Слабое размытие */
+            z-index: -1;
+        }
+
+        /* Контейнер с текстом */
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8); /* Полупрозрачный белый фон */
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #8B0000;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #555;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>О МОЕЙ ЛЮБВИ</h1>
+    <p>Этот сюрприз — чтобы показать, как сильно я тебя люблю!</p>
+    <audio controls autoplay>
+        <source src="kot-balu-feat.-santiz-amp-qb-o-moejj-ljubvi.mp3" type="audio/mpeg">
+    </audio>
+</div>
+</body>
+</html>
