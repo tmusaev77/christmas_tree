@@ -1,67 +1,430 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сюрприз для любимой</title>
+    <title>Магазин елок</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet"> <!-- Montserrat font -->
+
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            position: relative;
-            overflow: hidden;
-
-            /* Фон с фото */
-            background: url('photo.jpg') no-repeat center calc(50% + 50px);
-            background-size: 50%; /* Уменьшаем масштаб изображения */
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600; /* SemiBold for body text */
         }
-
-        /* Легкое размытие и затемнение */
-        body::before {
-            content: "";
-            position: absolute;
+        h1, h2, h3, h4, h5, h6, p {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700; /* Bold for headings */
+        }
+        .logo {
+            height: 100px; /* Adjust logo size */
+            width: auto;
+        }
+        nav ul li a {
+            color: black; /* Green color for nav links */
+        }
+        nav ul li a:hover {
+            color: #106200; /* Darker green on hover */
+        }
+        .modal-content {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .buy-btn {
+            background-color: #d9534f; /* Bootstrap danger color for buy buttons */
+        }
+        .buy-btn:hover {
+            background-color: #c9302c; /* Slightly darker red */
+        }
+        .img-fluid-icon {
+            width: 100px; /* Установите нужную ширину */
+            height: 100px; /* Установите нужную высоту */
+            object-fit: cover; /* Сохраняет пропорции, обрезая лишнее */
+        }
+        .card-elka {
+            border-radius: 20px;
+        }
+        .navbar-toggler-icon {
+            background-color: #106200; /* Цвет для иконки */
+        }
+        .offcanvas {
+            position: fixed;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3); /* Лёгкое затемнение */
-            backdrop-filter: blur(5px); /* Слабое размытие */
-            z-index: -1;
+            bottom: 0;
+            right: -100%; /* Начальное состояние: за экраном справа */
+            width: 250px;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease-in-out;
+            z-index: 1045;
         }
 
-        /* Контейнер с текстом */
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.8); /* Полупрозрачный белый фон */
-            padding: 20px 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        .offcanvas.show {
+            right: 0; /* Показываем меню */
         }
 
-        h1 {
-            font-size: 2.5rem;
-            color: #8B0000;
+        .btn-close {
+            background-color: transparent;
+            border: none;
+            font-size: 1.5rem;
         }
 
-        p {
-            font-size: 1.2rem;
-            color: #555;
-            margin-top: 10px;
+        .offcanvas-open {
+            overflow: hidden; /* Блокирует прокрутку страницы при открытом меню */
         }
+        /* Увеличиваем шрифт и прижимаем ссылки */
+        a {
+            font-size: 1.25rem; /* Увеличиваем размер шрифта для всех ссылок */
+            padding: 5px 10px;  /* Добавляем отступы */
+            display: inline-block; /* Чтобы ссылки занимали блоковое пространство */
+        }
+
+        .nav-link {
+            font-size: 20px; /* Увеличиваем шрифт для навигационных ссылок */
+        }
+
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>О МОЕЙ ЛЮБВИ</h1>
-    <p>Этот сюрприз — чтобы показать, как сильно я тебя люблю!</p>
-    <audio controls autoplay>
-        <source src="kot-balu-feat.-santiz-amp-qb-o-moejj-ljubvi.mp3" type="audio/mpeg">
-    </audio>
+<!-- Header -->
+<header class="text-white py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <!-- Логотип -->
+        <div class="d-flex align-items-center">
+            <img src="logo.png" alt="The Christmas Logo" class="logo me-5">
+        </div>
+
+        <!-- Навигация для больших экранов -->
+        <nav class="d-none d-md-block">
+            <ul class="nav">
+                <li class="nav-item me-4"><a class="nav-link text-black" href="#catalog">Каталог</a></li>
+                <li class="nav-item me-4"><a class="nav-link text-black" href="#steps">Этапы покупки</a></li>
+                <li class="nav-item me-4"><a class="nav-link text-black" href="#why-us" id="openModalDesktop">Почему мы</a></li>
+                <li class="nav-item me-4"><a class="nav-link text-black" href="#contact">Контакты</a></li>
+            </ul>
+        </nav>
+
+        <!-- Телефон с иконкой, скрытый на планшетах и мобильных -->
+        <div class="d-none d-lg-flex align-items-center">
+            <i class="bi bi-telephone-fill me-2" style="color: #106200;"></i>
+            <a href="tel:+777077264412" class="text-black">+7 (707) 726-44-12</a>
+        </div>
+
+        <!-- Бургер-меню -->
+        <button id="burger-btn" class="navbar-toggler d-md-none" type="button" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-list" style="font-size: 1.5rem; color: #106200;"></i>
+        </button>
+    </div>
+
+    <!-- Мобильное меню -->
+    <div id="burger-menu" class="offcanvas offcanvas-end">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Меню</h5>
+            <button type="button" class="btn-close" id="close-burger" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link text-black" href="#catalog">Каталог</a></li>
+                <li class="nav-item"><a class="nav-link text-black" href="#steps">Этапы покупки</a></li>
+                <li class="nav-item"><a class="nav-link text-black" href="#why-us" id="openModalMobile">Почему мы</a></li>
+                <li class="nav-item"><a class="nav-link text-black" href="#contact">Контакты</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<section class="py-5">
+    <div class="container d-flex flex-column flex-md-row align-items-center">
+        <div class="col-md-6 text-center text-md-start">
+            <h1>НЕВЕРОЯТНЫЕ ИСКУССТВЕННЫЕ ЕЛКИ</h1>
+            <p class="mt-4" style="font-size: 22px;">Порадуйте себя и своих близких настоящим праздничным настроением с нашими елками!</p>
+            <a href="#catalog" class="btn" style="margin-top: 30px; background-color: #C1010A; color: white; border-radius: 10px;">Перейти в каталог</a>
+            <div class="row d-flex flex-column flex-md-row align-items-center mt-5">
+                <div class="col-4 text-center">
+                    <img src="price-icon.png" alt="Лучшая цена" class="img-fluid-icon mb-2">
+                    <p>Лучшая цена</p>
+                </div>
+                <div class="col-4 text-center">
+                    <img src="delivery-icon.png" alt="Быстрая доставка" class="img-fluid-icon mb-2">
+                    <p>Быстрая доставка</p>
+                </div>
+                <div class="col-4 text-center">
+                    <img src="quality-icon.png" alt="Гарантия качества" class="img-fluid-icon mb-2">
+                    <p>Гарантия качества</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 text-center mt-4 mt-md-0">
+            <img src="elka.jpg" alt="Елка" class="img-fluid">
+        </div>
+    </div>
+</section>
+
+<!-- Catalog Section -->
+<section id="catalog" class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Каталог</h2>
+        <div class="row g-4">
+            <!-- Product example -->
+            <div class="col-md-4 card-elka">
+                <div class="card h-100 ">
+                    <!-- Slider for product images -->
+                    <div id="carouselExample1" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample1" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Предыдущий</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample1" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Следующий</span>
+                        </button>
+                    </div>
+                    <!-- Card content -->
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Елка 150 см</h5>
+                        <p class="card-text fw-bold text-success">Цена: 20,000 тенге</p>
+                        <button class="btn" style="background-color: #C1010A; color: white; padding: 10px 70px 10px 70px; border-radius: 15px" data-bs-toggle="modal" data-bs-target="#contactModal" data-tree="Елка 150 см">Купить</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 card-elka">
+                <div class="card h-100">
+                    <!-- Slider for product images -->
+                    <div id="carouselExample2" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample2" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Предыдущий</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample2" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Следующий</span>
+                        </button>
+                    </div>
+                    <!-- Card content -->
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Елка 180 см</h5>
+                        <p class="card-text fw-bold text-success">Цена: 25,000 тенге</p>
+                        <button class="btn" style="background-color: #C1010A; color: white;padding: 10px 70px 10px 70px; border-radius: 15px" data-bs-toggle="modal" data-bs-target="#contactModal" data-tree="Елка 180 см">Купить</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 card-elka">
+                <div class="card h-100">
+                    <!-- Slider for product images -->
+                    <div id="carouselExample3" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="test.jpg" class="d-block w-100" alt="">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample3" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Предыдущий</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample3" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Следующий</span>
+                        </button>
+                    </div>
+                    <!-- Card content -->
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Елка 210 см</h5>
+                        <p class="card-text fw-bold text-success">Цена: 30,000 тенге</p>
+                        <button class="btn" style="background-color: #C1010A; color: white; padding: 10px 70px 10px 70px; border-radius: 15px" data-bs-toggle="modal" data-bs-target="#contactModal" data-tree="Елка 210 см">Купить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" id="steps">
+    <div class="container">
+        <h2 class="text-center mb-5">Этапы покупки</h2>
+        <div class="row g-4">
+            <!-- Step 1 -->
+            <div class="col-md-3 text-center">
+                <div class="card">
+                    <img src="step1.png" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <p>Заявка или звонок<br>Вы оставляете заяку на нашем сайте, или звоните нам по номеру<br>+7(707) 726-44-12</p>
+                        <div class="step-number" style="color: #C1010A; font-size: 36px;">01</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="col-md-3 text-center">
+                <div class="card">
+                    <img src="step2.png" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <p>Уточнение деталей<br>Менеджер перезвонит Вам в течении 5 минут и уточнит детали заказа</p>
+                        <div class="step-number" style="color: #C1010A; font-size: 36px;">02</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="col-md-3 text-center">
+                <div class="card">
+                    <img src="step3.png" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <p>Доставка<br>Доставим елку на любой адрес</p>
+                        <div class="step-number" style="color: #C1010A; font-size: 36px;">03</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 4 -->
+            <div class="col-md-3 text-center">
+                <div class="card">
+                    <img src="elka.jpg" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <p>Получите доставку</p>
+                        <div class="step-number" style="color: #C1010A; font-size: 36px;">04</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">Оформление заказа</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label for="customerName" class="form-label">Ваше имя:</label>
+                        <input type="text" class="form-control" id="customerName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerPhone" class="form-label">Телефон:</label>
+                        <input type="tel" class="form-control" id="customerPhone" name="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerAddress" class="form-label">Адрес доставки:</label>
+                        <input type="text" class="form-control" id="customerAddress" name="address" required>
+                    </div>
+                    <input type="hidden" name="tree" id="selectedTree">
+                    <button type="submit" class="btn btn-success w-100">Оформить заказ</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="whyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Почему выбрать нас?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Качество:</strong> Мы предлагаем только проверенные и высококачественные товары, которые прослужат долго.</p>
+                <p><strong>Обслуживание:</strong> Наша команда всегда готова помочь и предоставить поддержку на каждом этапе покупки.</p>
+                <p><strong>Удобство:</strong> Мы заботимся о вашем комфорте и предлагаем удобные способы оплаты и доставки.</p>
+                <p><strong>Цена:</strong> Наши цены конкурентоспособны, и мы регулярно проводим акции и скидки.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-5">
+    <div class="container" id="contact">
+        <p class="fs-4">© 2024 Your Christmas, Our Trees</p>
+        <div>
+            <a href="https://www.instagram.com/yourprofile" class="text-white me-3 fs-5">
+                <i class="bi bi-instagram fs-3 me-2"></i> Instagram
+            </a>
+            <a href="https://wa.me/yourwhatsappnumber" class="text-white fs-5">
+                <i class="bi bi-whatsapp fs-3 me-2"></i> WhatsApp
+            </a>
+        </div>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.buy-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const treeName = this.getAttribute('data-tree');
+            document.getElementById('selectedTree').value = treeName;
+        });
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('whyModal'));
+
+    // Для десктопной версии
+    document.getElementById('openModalDesktop').addEventListener('click', () => {
+        modal.show();
+    });
+
+    // Для мобильной версии
+    document.getElementById('openModalMobile').addEventListener('click', () => {
+        modal.show();
+    });
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const burgerBtn = document.getElementById("burger-btn");
+        const closeBurger = document.getElementById("close-burger");
+        const burgerMenu = document.getElementById("burger-menu");
+        const navLinks = document.querySelectorAll("#burger-menu .nav-link");
+
+        // Открыть бургер-меню
+        burgerBtn.addEventListener("click", () => {
+            burgerMenu.classList.add("show");
+            document.body.classList.add("offcanvas-open");
+        });
+
+        // Закрыть бургер-меню
+        closeBurger.addEventListener("click", () => {
+            burgerMenu.classList.remove("show");
+            document.body.classList.remove("offcanvas-open");
+        });
+
+        // Закрытие меню при клике на ссылку
+        navLinks.forEach(link => {
+            link.addEventListener("click", () => {
+                burgerMenu.classList.remove("show");
+                document.body.classList.remove("offcanvas-open");
+            });
+        });
+    });
+</script>
 </body>
 </html>
