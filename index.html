@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet"> <!-- Montserrat font -->
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=5c48eb89-4d96-4198-9ed8-3e501a989daa&lang=ru_RU" type="text/javascript"></script>
 
     <style>
         body {
@@ -318,7 +319,7 @@
 <!-- Modal -->
 <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="padding: 20px">
             <div class="modal-header">
                 <h5 class="modal-title" id="contactModalLabel">Оформление заказа</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
@@ -333,13 +334,15 @@
                         <label for="customerPhone" class="form-label">Телефон:</label>
                         <input type="tel" class="form-control" id="customerPhone" name="phone" required>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label for="customerAddress" class="form-label">Адрес доставки:</label>
-                        <input type="text" class="form-control" id="customerAddress" name="address" required>
+                        <input type="text" class="form-control" id="customerAddress" name="address" required autocomplete="off">
+                        <ul id="suggestions" class="list-group position-absolute w-100" style="z-index: 1000;"></ul>
                     </div>
                     <input type="hidden" name="tree" id="selectedTree">
                     <button type="submit" class="btn btn-success w-100">Оформить заказ</button>
                 </form>
+                <div id="map" style="width: 100%; height: 300px; margin-top: 20px;"></div>
             </div>
         </div>
     </div>
@@ -379,11 +382,15 @@
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/imask"></script>
 <script>
-    document.querySelectorAll('.buy-btn').forEach(button => {
-        button.addEventListener('click', function () {
+    // Слушаем нажатие на кнопки "Купить"
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Получаем название елки из data-tree и передаем в скрытое поле формы
             const treeName = this.getAttribute('data-tree');
             document.getElementById('selectedTree').value = treeName;
+            console.log(document.getElementById('selectedTree').value)
         });
     });
 
@@ -398,7 +405,6 @@
     document.getElementById('openModalMobile').addEventListener('click', () => {
         modal.show();
     });
-
 
     document.addEventListener("DOMContentLoaded", () => {
         const burgerBtn = document.getElementById("burger-btn");
@@ -426,6 +432,166 @@
             });
         });
     });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        ymaps.ready(() => {
+            const myMap = new ymaps.Map("map", {
+                center: [43.238949, 76.889709], // Координаты Алматы
+                zoom: 12, // Уровень масштаба
+                controls: [
+                    "zoomControl",          // Управление масштабом
+                    // "searchControl",        // Поле для поиска
+                    // "typeSelector",         // Переключатель типов карт
+                    // "geolocationControl",   // Кнопка геолокации
+                    // "routePanelControl",    // Панель маршрута
+                    // "trafficControl",       // Панель пробок
+                    // "rulerControl",         // Панель измерений
+                    "fullscreenControl"     // Кнопка полноэкранного режима
+                ]
+            });
+
+            let placemark;
+
+            // Функция для добавления метки на карту
+            const geocodeAddress = (address) => {
+                ymaps.geocode(address, { results: 1 }).then((res) => {
+                    const firstGeoObject = res.geoObjects.get(0);
+                    if (firstGeoObject) {
+                        const coordinates = firstGeoObject.geometry.getCoordinates();
+
+                        // Удаляем предыдущую метку, если она есть
+                        if (placemark) {
+                            myMap.geoObjects.remove(placemark);
+                        }
+
+                        // Добавляем новую метку
+                        placemark = new ymaps.Placemark(coordinates, {
+                            hintContent: address,
+                            balloonContent: firstGeoObject.getAddressLine(),
+                        });
+
+                        myMap.geoObjects.add(placemark);
+
+                        // Центрируем карту на новые координаты
+                        myMap.setCenter(coordinates, 14);
+                    }
+                });
+            };
+
+            // API подсказок Яндекса (с использованием API-ключа)
+            const fetchSuggestions = async (query) => {
+                const apiKey = '5c48eb89-4d96-4198-9ed8-3e501a989daa'; // Укажите ваш API-ключ
+                const url = `https://geocode-maps.yandex.ru/1.x/?apikey=${apiKey}&geocode=${encodeURIComponent(query)}&format=json&lang=ru_RU`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    // Обрабатываем результаты
+                    const suggestions = data.response.GeoObjectCollection.featureMember.map(
+                        (item) => item.GeoObject.name
+                    );
+                    return suggestions;
+                } catch (error) {
+                    console.error('Ошибка при запросе подсказок:', error);
+                    return [];
+                }
+            };
+
+            // Получение подсказок для ввода адреса
+            const addressInput = document.getElementById("customerAddress");
+            const suggestionsList = document.getElementById("suggestions");
+
+            addressInput.addEventListener("input", async () => {
+                const query = addressInput.value;
+                if (query.length > 3) { // Показать подсказки только если введено более 3 символов
+                    const suggestions = await fetchSuggestions(`Алматы, ${query}`);
+                    suggestionsList.innerHTML = "";
+
+                    suggestions.forEach((suggestion) => {
+                        const listItem = document.createElement("li");
+                        listItem.className = "list-group-item list-group-item-action";
+                        listItem.textContent = suggestion;
+                        listItem.addEventListener("click", () => {
+                            addressInput.value = suggestion;
+                            suggestionsList.innerHTML = ""; // Очищаем подсказки
+                            geocodeAddress(suggestion);
+                        });
+                        suggestionsList.appendChild(listItem);
+                    });
+                } else {
+                    suggestionsList.innerHTML = ""; // Очищаем подсказки, если ввода мало
+                }
+            });
+
+            // Убираем подсказки при клике вне поля
+            document.addEventListener("click", (e) => {
+                if (!suggestionsList.contains(e.target) && e.target !== addressInput) {
+                    suggestionsList.innerHTML = "";
+                }
+            });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const phoneInput = document.getElementById("customerPhone");
+        IMask(phoneInput, {
+            mask: '+{7} (000) 000-00-00',
+        });
+    });
+
+    document.getElementById("contactForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("customerName").value;
+        let phone = document.getElementById("customerPhone").value;
+        const address = document.getElementById("customerAddress").value;
+        const tree = document.getElementById("selectedTree").value;
+
+        // Убираем все пробелы, дефисы и скобки из номера телефона
+        phone = phone.replace(/\D+/g, "");  // Оставляем только цифры
+
+        console.log("Отформатированный номер телефона:", phone);
+
+        // Если номер начинается не с +7, добавляем +7
+        if (!phone.startsWith("7")) {
+            phone = "7" + phone;  // Добавляем 7, если его нет
+        }
+
+        phone = "+7" + phone.slice(1);  // Преобразуем в формат +7...
+
+        console.log("Телефон после добавления +7:", phone);
+
+        // Проверка формата номера телефона
+        const phonePattern = /^\+7\d{10}$/;
+        if (!phonePattern.test(phone)) {
+            alert("Номер телефона должен начинаться с +7 и содержать 11 цифр.");
+            return;
+        }
+
+        // Логируем данные перед отправкой
+        console.log("Отправляемые данные:", { name, phone, address, tree });
+
+        try {
+            const response = await fetch("https://blossom-boulevard.kz/send-data.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, phone, address, tree }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Заказ успешно оформлен!");
+            } else {
+                alert("Ошибка при оформлении заказа.");
+            }
+        } catch (error) {
+            console.error("Ошибка:", error);
+            alert("Ошибка подключения к серверу.");
+        }
+    });
+
 </script>
 </body>
 </html>
